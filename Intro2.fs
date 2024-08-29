@@ -98,29 +98,30 @@ let rec eval3 e (env: (string * int) list) : int =
         | "min" -> min i1 i2
         | "==" -> eq i1 i2
     | Prim _ -> failwith "unknown primitive"
-    | If(e1, e2, e3) -> if eval e1 env != 0 then eval e2 env else eval e3 env
+    | If(e1, e2, e3) -> if eval e1 env = 0 then eval e3 env else eval e2 env
 
 
 //1.2 (i)
 type aexpr =
-    | CstI of int
-    | Var of string
-    | Add of expr * expr
-    | Mul of expr * expr
-    | Sub of expr * expr
+    | ACstI of int
+    | AVar of string
+    | Add of aexpr * aexpr
+    | Mul of aexpr * aexpr
+    | Sub of aexpr * aexpr
 
 
- //1.2 ii
- //v − (w + z)
-Sub(Var "v", Add(Var "w", Var "z"))
+//1.2 ii
+//v − (w + z)
+Sub(AVar "v", Add(AVar "w", AVar "z"))
 //2 ∗ (v − (w + z))
-Mul(CstI 2, Sub(Var "v", Add(Var "w", Var "z")))
+Mul(ACstI 2, Sub(AVar "v", Add(AVar "w", AVar "z")))
 //x + y + z + v
-Add(Var "v", Add (Var "z", Add(Var "y", Var "x")))
+Add(AVar "v", Add(AVar "z", Add(AVar "y", AVar "x")))
 
 let rec fmt aexp =
-  match aexp with 
-  |CstI x -> x.ToString
-  |Var x -> x
-  |Add (e1, e2) -> (fmt e1) + " + " + (fmt e2)
-
+    match aexp with
+    | ACstI x -> x.ToString()
+    | AVar x -> x
+    | Add(e1, e2) -> " ( " + (fmt e1) + " + " + (fmt e2) + ")"
+    | Sub(e1, e2) -> " ( " + (fmt e1) + " - " + (fmt e2) + " ) "
+    | Mul(e1, e2) -> " ( " + (fmt e1) + " * " + (fmt e2) + " ) "
