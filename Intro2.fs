@@ -125,3 +125,16 @@ let rec fmt aexp =
     | Add(e1, e2) -> " ( " + (fmt e1) + " + " + (fmt e2) + ")"
     | Sub(e1, e2) -> " ( " + (fmt e1) + " - " + (fmt e2) + " ) "
     | Mul(e1, e2) -> " ( " + (fmt e1) + " * " + (fmt e2) + " ) "
+
+let rec simplify aexp =
+    match aexp with
+    | Add (0, e) -> e
+    | Add (e, 0) -> e
+    | Sub (e, 0) -> e
+    | Mul (1,e) -> e
+    | Mul (e,1) -> e
+    | Mul (e, 0) -> 0
+    | Mul (0, e) -> 0
+    | Sub (e1, e2) when e1 = e2 -> 0
+
+
