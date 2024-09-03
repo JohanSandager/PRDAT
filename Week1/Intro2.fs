@@ -114,11 +114,11 @@ type aexpr =
 //v − (w + z)
 let a = Sub(AVar "v", Add(AVar "w", AVar "z"))
 //2 ∗ (v − (w + z))
-let b =Mul(ACstI 2, Sub(AVar "v", Add(AVar "w", AVar "z")))
+let b = Mul(ACstI 2, Sub(AVar "v", Add(AVar "w", AVar "z")))
 //x + y + z + v
 let c = Add(AVar "v", Add(AVar "z", Add(AVar "y", AVar "x")))
 
-let x1 = Mul(Add (AVar "x", ACstI 0), Add (ACstI 0, ACstI 1))
+let x1 = Mul(Add(AVar "x", ACstI 0), Add(ACstI 0, ACstI 1))
 
 //1.2 iii
 let rec fmt aexp =
@@ -133,55 +133,74 @@ let rec fmt aexp =
 let rec simplify aexp =
     let rec aux aexp =
         match aexp with
-        | Add (ACstI 0, e) -> aux e
-        | Add (e, ACstI 0) -> aux e
-        | Sub (e, ACstI 0) -> aux e
-        | Mul (ACstI 1,e) -> aux e
-        | Mul (e, ACstI 1) -> aux e
-        | Mul (e, ACstI 0) -> ACstI 0
-        | Mul (ACstI 0, e) -> ACstI 0
-        | Sub (e1, e2) when e1 = e2 -> ACstI 0
-        | Mul (e1, e2) -> Mul ((aux e1), (aux e2)) 
+        | Add(ACstI 0, e) -> aux e
+        | Add(e, ACstI 0) -> aux e
+        | Sub(e, ACstI 0) -> aux e
+        | Mul(ACstI 1, e) -> aux e
+        | Mul(e, ACstI 1) -> aux e
+        | Mul(e, ACstI 0) -> ACstI 0
+        | Mul(ACstI 0, e) -> ACstI 0
+        | Sub(e1, e2) when e1 = e2 -> ACstI 0
+        | Mul(e1, e2) -> Mul((aux e1), (aux e2))
         | _ -> aexp
-    let result = aux aexp
-    if aexp = result then result
-    else simplify result 
-    
 
-    
-//1.4 
-import java.util.Map;
+    let result = aux aexp
+    if aexp = result then result else simplify result
+
+//1.2 v
+let rec diff aexp =
+    match aexp with
+    | ACstI _ -> ACstI 0
+    | AVar _ -> ACstI 1
+    | Add(e1, e2) -> Add(diff e1, diff e2)
+    | Sub(e1, e2) -> Sub(diff e1, diff e2)
+    | Mul(e1, e2) -> Add(Mul((diff e1), e2), Mul(e1, (diff e2)))
+
+//1.4
+(*import java.util.Map;
 import java.util.HashMap;
 
 public class Main {
     public static void main(String[] args) {
         Map<String, Integer> env = Map.of("z", 3, "x", 4, "y", 7, "a", 2, "b", 3);
 
-
         Expr e = new Add(new CstI(17), new Var("z"));
-        System.out.println(e.toString());  
+        System.out.println(e.toString());
         System.out.println(e.eval(env));
 
         // Expression 1: 5 * x
         Expr e1 = new Mul(new CstI(5), new Var("x"));
-        System.out.println(e1.toString()); 
-        System.out.println(e1.eval(env)); 
+        System.out.println(e1.toString());
+        System.out.println(e1.eval(env));
 
         // Expression 2: (10 + y) - 3
         Expr e2 = new Sub(new Add(new CstI(10), new Var("y")), new CstI(3));
-        System.out.println(e2.toString()); 
-        System.out.println(e2.eval(env));  
+        System.out.println(e2.toString());
+        System.out.println(e2.eval(env));
 
         // Expression 3: (a * b) + 1
         Expr e3 = new Add(new Mul(new Var("a"), new Var("b")), new CstI(1));
         System.out.println(e3.toString());
-        System.out.println(e3.eval(env)); 
+        System.out.println(e3.eval(env));
+
+        Expr e4 = new Add(new CstI(0), new Sub(new CstI(1), new CstI(1)));
+        System.out.println(e4.simplify());
+
+        Expr e5 = new Add(new CstI(0), new Sub(new Var("A"), new Var("A")));
+        System.out.println(e5.simplify());
+
+        Expr e6 = new Add(new CstI(0), new Sub(new Add(new CstI(1), new CstI(1)), new Add(new CstI(1), new CstI(1))));
+        System.out.println(e6.simplify());
+
     }
 }
 
 abstract class Expr {
-    public abstract String toString(); 
+    public abstract String toString();
+
     public abstract int eval(Map<String, Integer> env);
+
+    public abstract Expr simplify();
 
 }
 
@@ -194,13 +213,18 @@ class CstI extends Expr {
 
     @Override
     public int eval(Map<String, Integer> env) {
-        return i; 
+        return i;
     }
 
     @Override
-    public String toString() { 
-        return "CstI " + Integer.toString(i); 
-    } 
+    public String toString() {
+        return "CstI " + Integer.toString(i);
+    }
+
+    @Override
+    public Expr simplify() {
+        return this;
+    }
 }
 
 class Var extends Expr {
@@ -219,15 +243,20 @@ class Var extends Expr {
     }
 
     @Override
-    public String toString() { 
+    public String toString() {
         return "Var " + name;
-    } 
+    }
+
+    @Override
+    public Expr simplify() {
+        return this;
+    }
 }
 
-abstract class Binop extends Expr { 
-    protected final Expr e1, e2; 
+abstract class Binop extends Expr {
+    protected final Expr e1, e2;
 
-    public Binop(Expr e1, Expr e2) { 
+    public Binop(Expr e1, Expr e2) {
         this.e1 = e1;
         this.e2 = e2;
     }
@@ -243,24 +272,50 @@ class Add extends Binop {
     }
 
     @Override
-    public String toString() { 
+    public String toString() {
         return "Add(" + e1.toString() + ", " + e2.toString() + ")";
-    } 
+    }
+
+    @Override
+    public Expr simplify() {
+        if (this.e1 instanceof CstI && ((CstI) this.e1).i == 0) {
+            return this.e2.simplify();
+        } else if (this.e2 instanceof CstI && ((CstI) this.e2).i == 0) {
+            return this.e1.simplify();
+        } else {
+            return new Add(this.e1.simplify(), this.e2.simplify());
+        }
+    }
 }
 
 class Mul extends Binop {
     public Mul(Expr e1, Expr e2) {
         super(e1, e2);
     }
-    
+
     public int eval(Map<String, Integer> env) {
         return e1.eval(env) * e2.eval(env);
     }
-    
+
     @Override
-    public String toString() { 
+    public String toString() {
         return "Mul(" + e1.toString() + ", " + e2.toString() + ")";
-    } 
+    }
+
+    @Override
+    public Expr simplify() {
+        if (this.e1 instanceof CstI && ((CstI) this.e1).i == 0) {
+            return new CstI(0);
+        } else if (this.e2 instanceof CstI && ((CstI) this.e2).i == 0) {
+            return new CstI(0);
+        } else if (this.e1 instanceof CstI && ((CstI) this.e1).i == 1) {
+            return this.e2.simplify();
+        } else if (this.e2 instanceof CstI && ((CstI) this.e2).i == 1) {
+            return this.e1.simplify();
+        } else {
+            return new Mul(this.e1.simplify(), this.e2.simplify());
+        }
+    }
 }
 
 class Sub extends Binop {
@@ -271,14 +326,24 @@ class Sub extends Binop {
     public int eval(Map<String, Integer> env) {
         return e1.eval(env) - e2.eval(env);
     }
-    
+
     @Override
-    public String toString() { 
+    public String toString() {
         return "Sub(" + e1.toString() + ", " + e2.toString() + ")";
-    } 
-}
+    }
+
+    @Override
+    public Expr simplify() {
+        if (this.e2 instanceof CstI && ((CstI) this.e2).i == 0) {
+            return this.e1.simplify();
+        } else if (this.e1 instanceof CstI && this.e2 instanceof CstI && ((CstI) this.e1).i == ((CstI) this.e2).i) {
+            return new CstI(0);
+        } else if (this.e1 instanceof Var && this.e2 instanceof Var && ((Var) this.e1).name == ((Var) this.e2).name) {
+            return new CstI(0);
+        } else {
+            return new Sub(this.e1.simplify(), this.e2.simplify());
+        }
+    }
+}*)
 
 //2.1
-
-
-
