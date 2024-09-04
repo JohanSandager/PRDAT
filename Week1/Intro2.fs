@@ -148,13 +148,13 @@ let rec simplify aexp =
     if aexp = result then result else simplify result
 
 //1.2 v
-let rec diff aexp =
+let rec diff aexp x =
     match aexp with
     | ACstI _ -> ACstI 0
-    | AVar _ -> ACstI 1
-    | Add(e1, e2) -> Add(diff e1, diff e2)
-    | Sub(e1, e2) -> Sub(diff e1, diff e2)
-    | Mul(e1, e2) -> Add(Mul((diff e1), e2), Mul(e1, (diff e2)))
+    | AVar y -> if x = y then ACstI 1 else ACstI 0
+    | Add(e1, e2) -> Add(diff e1 x, diff e2 x)
+    | Sub(e1, e2) -> Sub(diff e1 x, diff e2 x)
+    | Mul(e1, e2) -> Add(Mul((diff e1 x), e2), Mul(e1, (diff e2 x)))
 
 //1.4
 (*import java.util.Map;
@@ -190,7 +190,7 @@ public class Main {
         System.out.println(e5.simplify());
 
         Expr e6 = new Add(new CstI(0), new Sub(new Add(new CstI(1), new CstI(1)), new Add(new CstI(1), new CstI(1))));
-        System.out.println(e6.simplify());
+        System.out.println("e6" + e6.simplify());
 
     }
 }
@@ -336,9 +336,9 @@ class Sub extends Binop {
     public Expr simplify() {
         if (this.e2 instanceof CstI && ((CstI) this.e2).i == 0) {
             return this.e1.simplify();
-        } else if (this.e1 instanceof CstI && this.e2 instanceof CstI && ((CstI) this.e1).i == ((CstI) this.e2).i) {
-            return new CstI(0);
         } else if (this.e1 instanceof Var && this.e2 instanceof Var && ((Var) this.e1).name == ((Var) this.e2).name) {
+            return new CstI(0);
+        } else if (this.e1.eval(new HashMap<String, Integer>()) == this.e2.eval(new HashMap<String, Integer>())) {
             return new CstI(0);
         } else {
             return new Sub(this.e1.simplify(), this.e2.simplify());
