@@ -412,41 +412,19 @@ let rec freevars1 e : string list =
         union (result, minus (freevars1 ebody, vars))
     | Prim1(ope, e1, e2) -> union (freevars1 e1, freevars1 e2)
 
-(*
-    let rec freevars e : string list =
-        match e with
-        | CstI i -> []
-        | Var x -> [ x ]
-        | Let(x, erhs, ebody) -> union (freevars erhs, minus (freevars ebody, [ x ]))
-        | Prim(ope, e1, e2) -> union (freevars e1, freevars e2)
-    *)
-(* Alternative definition of closed *)
-
 // 2.3
 
-(*let rec tcomp1 (e: expr2) (cenv: string list) : texpr =
+let rec tcomp1 (e: expr2) (cenv: string list) : texpr =
     match e with
     | CstI1 i -> TCstI i
     | Var1 x -> TVar(getindex cenv x)
     | Let1(lst, ebody) ->
-        let cenv2 = List.fold (fun acc (v, erhs) -> v :: acc) cenv lst
-
         match lst with
-        | x :: xs -> TLet(x, tcomp1 xs cenv2)
-
-    //List.fold (fun acc (v, erhs) -> TLet(tcomp1 erhs cenv2, tcomp1 ebody cenv2))::acc) [] lst
-    | Prim1(ope, e1, e2) -> TPrim(ope, tcomp1 e1 cenv, tcomp1 e2 cenv)*)
-
-
-
-(*let rec tcomp (e: expr) (cenv: string list) : texpr =
-    match e with
-    | CstI i -> TCstI i
-    | Var x -> TVar(getindex cenv x)
-    | Let(x, erhs, ebody) ->
-        let cenv1 = x :: cenv
-        TLet(tcomp erhs cenv, tcomp ebody cenv1)
-    | Prim(ope, e1, e2) -> TPrim(ope, tcomp e1 cenv, tcomp e2 cenv)*)
+        | [] -> tcomp1 ebody cenv
+        | (name, expr) :: xs ->
+            let cenv1 = name :: cenv
+            TLet(tcomp1 expr cenv, tcomp1 (Let1(xs, ebody)) cenv1)
+    | Prim1(ope, e1, e2) -> TPrim(ope, tcomp1 e1 cenv, tcomp1 e2 cenv)
 
 
 let h = [ 1; 2; 3 ]

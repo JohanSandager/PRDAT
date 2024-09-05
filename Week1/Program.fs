@@ -26,4 +26,4 @@ let e17 =
         Prim1("+", Var1 "x1", Var1 "x2")
     )
 
-printfn "Test e17. Expected result is empty list. : %A" (freevars1 e17)
+printfn "Test e17. Expected result is empty list. : %A" (tcomp1 e3 [])
