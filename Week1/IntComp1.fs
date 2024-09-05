@@ -428,3 +428,27 @@ let rec tcomp1 (e: expr2) (cenv: string list) : texpr =
 
 
 let h = [ 1; 2; 3 ]
+
+//Excersice 2.4
+let sinsToInt sin = 
+    match sin with
+    |SCstI x -> [0;x]
+    |SVar x -> [1;x]
+    |SAdd -> [2]
+    |SSub -> [3]
+    |SMul -> [4]
+    |SPop -> [5]
+    |SSwap -> [6]
+    |_ -> failwith "Dont know this one"
+
+let assemble lstSin =
+    List.fold (fun acc x -> acc@(sinsToInt x))[] lstSin
+
+open System.IO
+let intToFile lstSin fileName =
+    let result = lstSin |> List.fold(fun acc x -> acc + " " + x.ToString()) ""
+    File.WriteAllText (fileName, result)
+
+
+
+
