@@ -78,9 +78,27 @@ let ex5 =
               end"
 
 //4.2
-let sum = "let sum x = if x=1 then x else sum(x+1) in sum count end"
+let sum = fromString "let sum x = if x=1 then x else sum(x+1) in sum count end"
 // eval (fromString "let sum x = if x=1 then x else x+ sum(x-1) in sum count end") [("count", Int 1000)];;
 // val it: int = 500500
 
-let 3eight = "let pow x = if x=0 then 1 else 3*pow(x-1) in pow exponent end"
-// eval (fromString "let pow x = if x=0 then 1 else 3*pow(x-1) in pow exponent end") [("exponent", Int 8)];;
+let eight3 = fromString "let pow x = if x=0 then 1 else 3*pow(x-1) in pow exponent end"
+//eval (fromString "let pow x = if x=0 then 1 else 3*pow(x-1) in pow exponent end") [("exponent", Int 8)];;
+
+let powsum3 = fromString 
+        @"let pow3 x = if x = 0 then 1 else 3 * pow3 (x - 1)
+            in let powsum x = if x=0 then 1 else pow3 x + powsum (x - 1)
+                in powsum 11 
+                end
+            end"
+// eval (fromString "let pow3 x = if x = 0 then 1 else 3 * pow3 (x - 1) in let powsum x = if x=0 then 1 else pow3 x + powsum (x - 1) in powsum 11 end end") []
+// val it: int = 265720
+
+let pow8 = fromString 
+        @"let powx x y = if y = 0 then 1 else x * powx x (y - 1)
+            in let powsum x = if x = 10 then powx 10 8 else powx x 8 + powsum (x + 1)
+                in powsum 1 
+                end
+            end"
+
+// eval (fromString "let powx x y = if y = 0 then 1 else x * powx x (y - 1) in let powsum z = if z = 10 then powx 10 8 else powx z 8 + powsum (z + 1) in powsum 1 end end") [];;
