@@ -32,5 +32,7 @@ C. Using the lexer, parser and first-order evaluator together:
    run (fromString "5+7");;
    run (fromString "let y = 7 in y + 2 end");;
    run (fromString "let f x = x + 7 in f 2 end");;
+   run (fromString "let pow3 x = if x = 0 then 1 else 3 * pow3 (x - 1) in let powsum x = if x=0 then 1 else pow3 x + powsum (x - 1) in powsum 11 end end");; 
 
+   run (fromString "1 || 2");;
 
