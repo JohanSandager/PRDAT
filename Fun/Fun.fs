@@ -61,7 +61,7 @@ let rec eval (e: expr) (env: value env) : int =
         match fClosure with
         | Closure(f, argLst, fBody, fDeclEnv) ->
             //let xVal = Int(eval eArgLst env)
-            let eArgValLst = List.fold (fun acc x -> acc :: (Int(eval x env))) [] eArgLst
+            let eArgValLst = List.fold (fun acc x -> (Int(eval x env)) :: acc) [] eArgLst
             let tmp = List.zip argLst eArgValLst
             let fBodyEnv = tmp @ (f, fClosure) :: fDeclEnv
             eval fBody fBodyEnv
@@ -74,16 +74,16 @@ let run e = eval e []
 
 (* Examples in abstract syntax *)
 
-let ex1 = Letfun("f1", "x", Prim("+", Var "x", CstI 1), Call(Var "f1", CstI 12))
+let ex1 = Letfun("f1", ["x"], Prim("+", Var "x", CstI 1), Call(Var "f1", [CstI 12]))
 
 (* Example: factorial *)
 
 let ex2 =
     Letfun(
         "fac",
-        "x",
-        If(Prim("=", Var "x", CstI 0), CstI 1, Prim("*", Var "x", Call(Var "fac", Prim("-", Var "x", CstI 1)))),
-        Call(Var "fac", Var "n")
+        ["x"],
+        If(Prim("=", Var "x", CstI 0), CstI 1, Prim("*", Var "x", Call(Var "fac", [Prim("-", Var "x", CstI 1)]))),
+        Call(Var "fac", [Var "n"])
     )
 
 (* let fac10 = eval ex2 [("n", Int 10)];; *)
@@ -93,33 +93,34 @@ let ex2 =
 let ex3 =
     Letfun(
         "deep",
-        "x",
-        If(Prim("=", Var "x", CstI 0), CstI 1, Call(Var "deep", Prim("-", Var "x", CstI 1))),
-        Call(Var "deep", Var "count")
+        ["x"],
+        If(Prim("=", Var "x", CstI 0), CstI 1, Call(Var "deep", [Prim("-", Var "x", CstI 1)])),
+        Call(Var "deep", [Var "count"])
     )
 
 let rundeep n = eval ex3 [ ("count", Int n) ]
 
 (* Example: static scope (result 14) or dynamic scope (result 25) *)
 
-let ex4 =
-    Let("y", CstI 11, Letfun("f", "x", Prim("+", Var "x", Var "y"), Let("y", CstI 22, Call(Var "f", CstI 3))))
+//let ex4 =
+//    Let("y", CstI 11, Letfun("f", ["x"], Prim("+", Var "x", Var "y"), Let("y", CstI 22, Call(Var "f", CstI 3))))
 
 (* Example: two function definitions: a comparison and Fibonacci *)
-
+(*
 let ex5 =
     Letfun(
         "ge2",
-        "x",
+        ["x"],
         Prim("<", CstI 1, Var "x"),
         Letfun(
             "fib",
             "n",
             If(
                 Call(Var "ge2", Var "n"),
-                Prim("+", Call(Var "fib", Prim("-", Var "n", CstI 1)), Call(Var "fib", Prim("-", Var "n", CstI 2))),
+                Prim("+", Call(Var "fib", [Prim("-", Var "n", CstI 1)]), Call(Var "fib", [Prim("-", Var "n", CstI 2))]),
                 CstI 1
             ),
             Call(Var "fib", CstI 25)
         )
     )
+    *)
