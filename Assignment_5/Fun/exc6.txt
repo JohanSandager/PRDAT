@@ -1,0 +1,43 @@
+//6.1
+   run (fromString @"let add x = let f y = x+y in f end
+                     in add 2 5 end");;
+    val it: HigherFun.value = Int 7
+
+   run (fromString @"let add x = let f y = x+y in f end
+                     in let addtwo = add 2
+                        in addtwo 5 end
+                     end");;
+    val it: HigherFun.value = Int 7
+   run (fromString @"let add x = let f y = x+y in f end
+                     in let addtwo = add 2
+                        in let x = 77 in addtwo 5 end
+                     end end");;
+    val it: HigherFun.value = Int 7
+    
+    Since x = 77 is outside the scope and actually is never used. If we wanted to use x we could write:
+    let add x = let f y = x+y in f end
+        in let addtwo = add 2
+        in let x = 77 in x + addtwo 5 end
+        end end
+   which gives 77 + 7 = 84 :)
+   
+   run (fromString @"let add x = let f y = x+y in f end
+                     in add 2 end");;
+    val it: HigherFun.value =
+        Closure
+            ("f", "y", Prim ("+", Var "x", Var "y"),
+            [("x", Int 2);
+            ("add",
+            Closure
+                ("add", "x", Letfun ("f", "y", Prim ("+", Var "x", Var "y"), Var "f"),
+                []))])
+
+    We missing the second argument for 'y'.
+    Therefor we get Closure which can call with the second argument for y. 
+    We do so like this:
+
+    eval (Absyn.Call(Var "f", CstI 2)) [("f", it)];;
+    val it: value = Int 4
+
+
+
