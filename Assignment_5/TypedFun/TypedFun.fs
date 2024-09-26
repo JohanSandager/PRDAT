@@ -96,6 +96,7 @@ let rec eval (e : tyexpr) (env : value env) : int =
         eval fBody fBodyEnv
       | _ -> failwith "eval Call: not a function"
     | Call _ -> failwith "illegal function in Call"
+    
 
 (* Type checking for the first-order functional language: *)
 
@@ -140,9 +141,16 @@ let rec typ (e : tyexpr) (env : typ env) : typ =
         else failwith "Call: wrong argument type"
       | _ -> failwith "Call: unknown function"
     | Call(_, eArg) -> failwith "Call: illegal function in call"
+    | ListExpr(tyexprLst, ltype) -> 
+      match tyexprLst with 
+      |x :: xs -> 
+        let xType = typ x env 
+        if xType = ltype then typ (ListExpr(xs, ltype)) env else failwith "ListType: list not the same type"
+      |[] -> ltype
 
 let typeCheck e = typ e [];;
 
+let ex0 = ListExpr ([CstB true; CstB false], TypB);;
 
 (* Examples of successful type checking *)
 
