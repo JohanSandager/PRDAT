@@ -1,0 +1,64 @@
+8.1.2 
+ex3:
+[
+LDARGS; CALL (1, "L1"); STOP; 
+Label "L1"; 
+    INCSP 1; // Declare i
+    GETBP; CSTI 1; ADD; // Access value at i
+    CSTI 0; Add value to save in i
+    STI; // Save value in i
+    INCSP -1; // Next
+    GOTO "L3"; // Execute L3
+    
+Label "L2"; 
+    GETBP; CSTI 1; ADD; // Access value at i
+    LDI; // Put i on the stack
+    PRINTI; // Print i
+    INCSP -1; // Next
+    GETBP; CSTI 1; ADD; // Access value at i
+    GETBP; CSTI 1; ADD; // Access value at i
+    LDI; CSTI 1; ADD; // Put i on the stack and add 1
+    STI; // Store result in i
+    INCSP -1; // Next
+    INCSP 0; // No locals generated dead code
+
+Label "L3"; 
+    GETBP; CSTI 1; ADD; // Access value at n
+    LDI; // Load value 
+    GETBP; CSTI 0; ADD; // Access n
+    LDI; // Load value
+    LT; Compare i and n
+    IFNZRO "L2"; // If previous is zero (then i is <= n) go to L2
+    INCSP -1; // Return
+    RET 0 // Default return dead code
+    ]
+
+ex5: 
+[
+LDARGS; CALL (1, "L1"); STOP; 
+Label "L1"; INCSP 1; GETBP; CSTI 1; ADD;
+   GETBP; CSTI 0; ADD; 
+   LDI;
+   STI; 
+   INCSP -1; 
+   INCSP 1; 
+   GETBP; CSTI 0; ADD; 
+   LDI;
+   GETBP; CSTI 2; ADD; 
+   CALL (2, "L2"); 
+   INCSP -1; 
+   GETBP; CSTI 2; ADD; 
+   LDI;
+   PRINTI; 
+   INCSP -1; 
+   INCSP -1; 
+   GETBP; CSTI 1; ADD; 
+   LDI; 
+   PRINTI; 
+   INCSP -1;
+   INCSP -1; 
+   RET 0; 
+   
+Label "L2"; 
+   GETBP; CSTI 1; ADD; LDI; GETBP; CSTI 0; ADD;
+   LDI; GETBP; CSTI 0; ADD; LDI; MUL; STI; INCSP -1; INCSP 0; RET 1]
