@@ -15,7 +15,7 @@ let nl = CstI 10
 %token <string> CSTSTRING NAME
 
 %token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE FOR
-%token PLUS MINUS TIMES DIV MOD
+%token PLUS MINUS TIMES DIV MOD PREINC PREDEC
 %token EQ NE GT LT GE LE
 %token NOT SEQOR SEQAND
 %token LPAR RPAR LBRACE RBRACE LBRACK RBRACK SEMI COMMA ASSIGN AMP
@@ -100,7 +100,7 @@ StmtM:  /* No unbalanced if-else */
   | Block                               { $1                   }
   | IF LPAR Expr RPAR StmtM ELSE StmtM  { If($3, $5, $7)       }
   | WHILE LPAR Expr RPAR StmtM          { While($3, $5)        }
-  | FOR LPAR StmtM StmtM StmtM RPAR StmtM  { For($3, $4, $5)   }
+  | FOR LPAR Expr SEMI Expr SEMI Expr RPAR Stmt  { Block [Stmt(Expr $3); Stmt (While($5, Block [Stmt $9; Stmt(Expr $7)]))]  }
 ;
 
 StmtU:
@@ -111,6 +111,8 @@ StmtU:
 
 Expr: 
     Access                              { Access $1           }
+  | PREINC Access                       { PreInc($2) }
+  | PREDEC Access                       { PreDec($2) }
   | ExprNotAccess                       { $1                  }
 ;
 

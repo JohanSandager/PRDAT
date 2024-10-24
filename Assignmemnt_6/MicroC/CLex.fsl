@@ -27,7 +27,7 @@ let keyword s =
     | "return"  -> RETURN
     | "true"    -> CSTBOOL 1
     | "void"    -> VOID 
-    | "while"   -> WHILE 
+    | "while"   -> WHILE
     | "for"     -> FOR        
     | _         -> NAME s
  
@@ -52,6 +52,8 @@ rule Token = parse
   | ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9']*
                     { keyword (lexemeAsString lexbuf) }
   | '+'             { PLUS } 
+  | "++"            { PREINC }
+  | "--"            { PREDEC }
   | '-'             { MINUS } 
   | '*'             { TIMES } 
   | '/'             { DIV } 
