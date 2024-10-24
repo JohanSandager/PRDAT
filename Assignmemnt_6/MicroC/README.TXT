@@ -16,6 +16,22 @@ A. Generating and compiling the lexer and parser for micro-C, and
    run (fromFile "ex1.c") [17];;
    run (fromFile "ex5.c") [4];;
    run (fromFile "ex11.c") [8];;
+   
+
+   7.1 running the code:
+   run (fromFile "ex1.c") [10];; -> 10 9 8 7 6 5 4 3 2 1 val it: Interp.store = map [(0, 0)]
+   run (fromFile "ex5.c") [4];; -> 16 4 val it: Interp.store = map [(0, 4); (1, 4); (2, 16); (3, 4); (4, 2)]
+   run (fromFile "ex11.c") [8];; -> val it: Interp.store = map [(0, 8); (1, 0); (2, 9); (3, -999); (4, 0); (5, 0); (6, 0); (7, 0); (8, 0); ...]
+
+   7.2.1 running the code:
+   run (fromFile "7_2_1.c") [2];;
+
+   7.2.2 
+   run (fromFile "7_2_2.c") [4];;
+
+   7.2.3
+   run (fromFile "7_2_3.c") [7];;
+
 
 
 B. To compile and use the micro-C compiler
